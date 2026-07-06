@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charan Simha Sekharam — Data Engineer</title>
+<style>
+  :root{
+    --bg: #F6F7F9;
+    --surface: #FFFFFF;
+    --ink: #14181F;
+    --muted: #626C7A;
+    --accent: #5B4FEB;
+    --accent-bright: #7C6FFF;
+    --accent-soft: #ECEAFC;
+
+    --c-teradata: #4F46E5;
+    --c-etl: #D97706;
+    --c-aws: #EA580C;
+    --c-snowflake: #0EA5E9;
+    --c-databricks: #E11D48;
+    --c-azure: #2563EB;
+    --hairline: #E1E4E9;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin: 0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 85% 0%, rgba(91,79,235,0.14), transparent 45%),
+      radial-gradient(circle at 5% 10%, rgba(14,165,233,0.10), transparent 42%),
+      radial-gradient(circle at 60% 100%, rgba(234,88,12,0.06), transparent 40%);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: 'Times New Roman', Times, serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* faint dot-grid, schema-adjacent texture */
+  body::before{
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(91,79,235,0.16) 1px, transparent 1px);
+    background-size: 26px 26px;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent 480px);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent 480px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap{
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* pipeline spine */
+  .spine{
+    position: absolute;
+    left: 32px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--hairline);
+    overflow: hidden;
+  }
+  .spine::after{
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -60px;
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--accent-bright), transparent);
+    animation: pulse-flow 3.2s linear infinite;
+  }
+  @keyframes pulse-flow{
+    0%{ transform: translateY(0); }
+    100%{ transform: translateY(calc(100vh + 200px)); }
+  }
+  @media (max-width: 640px){ .spine{ display:none; } }
+  @media (prefers-reduced-motion: reduce){
+    .spine::after{ animation: none; opacity: 0; }
+  }
+
+  section{
+    position: relative;
+    padding-left: 40px;
+  }
+  @media (max-width: 640px){ section{ padding-left: 0; } }
+
+  .node{
+    position: absolute;
+    left: -5px;
+    top: 6px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+  }
+  @media (max-width: 640px){ .node{ display:none; } }
+
+  /* ---- Hero ---- */
+  header.hero{
+    padding: 88px 0 56px;
+  }
+
+  .expand-all-row{
+    padding-left: 40px;
+    margin-bottom: 36px;
+  }
+  @media (max-width: 640px){ .expand-all-row{ padding-left: 0; } }
+  .expand-all-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, transform .18s ease;
+  }
+  .expand-all-btn:hover{
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .expand-all-btn:focus-visible{
+    outline: 2px solid var(--accent-bright);
+    outline-offset: 3px;
+  }
+  .expand-all-icon{
+    transition: transform .3s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .expand-all-btn.all-open .expand-all-icon{
+    transform: rotate(45deg);
+  }
+  .eyebrow{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-bright);
+    margin: 0 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .eyebrow::before{
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-bright);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+
+  .name-trigger{
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: block;
+    text-align: left;
+    font: inherit;
+  }
+  .name-trigger:hover h1::after{
+    background: linear-gradient(90deg, var(--accent-soft), rgba(225,240,234,0.4) 92%);
+  }
+  .name-trigger:focus-visible{
+    outline: 2px solid var(--accent-bright);
+    outline-offset: 6px;
+  }
+  .name-hint{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin: 0 0 26px;
+    letter-spacing: 0.02em;
+  }
+  .name-hint::before{
+    content: '↳ ';
+    color: var(--accent-bright);
+  }
+  h1{
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    font-size: 58px;
+    line-height: 1.08;
+    margin: 0 0 10px;
+    letter-spacing: -0.015em;
+    position: relative;
+    display: inline-block;
+  }
+  h1::after{
+    content: '';
+    position: absolute;
+    left: 2px;
+    bottom: 4px;
+    width: 100%;
+    height: 14px;
+    background: linear-gradient(90deg, var(--accent-soft), transparent 92%);
+    z-index: -1;
+  }
+  @media (max-width: 640px){
+    h1{ font-size: 38px; }
+  }
+  .role{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px;
+    color: var(--muted);
+    margin: 0 0 28px;
+  }
+  .summary{
+    font-size: 16.5px;
+    color: #333B45;
+    max-width: 58ch;
+    margin: 0 0 30px;
+  }
+  .contact-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 13px;
+  }
+  .contact-row a{
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 1px;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .contact-row a:hover, .contact-row a:focus-visible{
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .contact-row span.sep{ color: var(--hairline); }
+
+  .flow-diagram{
+    margin-top: 40px;
+    overflow-x: auto;
+  }
+  .flow-line{
+    animation: dash-flow 1.6s linear infinite;
+  }
+  @keyframes dash-flow{
+    to{ stroke-dashoffset: -28; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .flow-line{ animation: none; }
+  }
+
+  /* ---- Section headers styled as schema/table declarations ---- */
+  .sec-title{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 22px;
+  }
+  .sec-title::before{
+    content: '';
+    width: 16px;
+    height: 1px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .exp-toggle{
+    background: none;
+    border: none;
+    font: inherit;
+    padding: 0;
+    cursor: pointer;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .exp-toggle:focus-visible{
+    outline: 2px solid var(--accent-bright);
+    outline-offset: 4px;
+    border-radius: 3px;
+  }
+  .exp-chevron{
+    color: var(--accent);
+    transition: transform .3s cubic-bezier(.2,.9,.3,1.2);
+    flex-shrink: 0;
+  }
+  .exp-toggle[aria-expanded="true"] .exp-chevron{
+    transform: rotate(180deg);
+  }
+  .exp-toggle:hover .exp-chevron{
+    color: var(--accent-bright);
+  }
+
+  .exp-collapse{
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows .4s cubic-bezier(.2,.9,.3,1), opacity .3s ease;
+  }
+  .exp-collapse.open{
+    grid-template-rows: 1fr;
+    opacity: 1;
+    margin-top: 22px;
+  }
+  .exp-collapse-inner{
+    overflow: hidden;
+    min-height: 0;
+  }
+  .exp-collapse .job{
+    transform: scale(0.97) translateY(-6px);
+    transition: transform .4s cubic-bezier(.2,.9,.3,1.15);
+  }
+  .exp-collapse.open .job{
+    transform: scale(1) translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .exp-collapse, .exp-collapse .job, .exp-chevron{ transition: none; }
+  }
+
+  section.block{
+    padding-top: 8px;
+    padding-bottom: 56px;
+  }
+  section.block:last-of-type{ padding-bottom: 96px; }
+
+  /* ---- Experience ---- */
+  .job{
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 5px;
+    padding: 24px 26px;
+    box-shadow: 0 1px 2px rgba(20,24,31,0.03);
+    transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+  }
+  .job:hover{
+    box-shadow: 0 8px 24px rgba(20,24,31,0.07);
+    border-color: #C9D3D6;
+    transform: translateY(-2px);
+  }
+  .job-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-bottom: 14px;
+  }
+  .job-title{
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    font-size: 19px;
+  }
+  .job-dates{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .job-progression{
+    display: grid;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--hairline);
+  }
+  .job-stage{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+  }
+  .job-stage-title{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  .job-stage-dates{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .job-stage-desc{
+    font-size: 14px;
+    color: #4A525C;
+    margin: 6px 0 0;
+    line-height: 1.55;
+  }
+
+  .job ul{
+    margin: 0;
+    padding-left: 18px;
+  }
+  .job li{
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: #333B45;
+  }
+  .job li:last-child{ margin-bottom: 0; }
+
+  /* ---- Skills as schema fields ---- */
+  .schema{
+    border: 1px solid var(--hairline);
+    border-radius: 5px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgba(20,24,31,0.03);
+  }
+  .schema-row{
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    border-bottom: 1px solid var(--hairline);
+    transition: background .15s ease;
+  }
+  .schema-row:hover{
+    background: #FBFCFD;
+  }
+  .schema-row:last-child{ border-bottom: none; }
+  .schema-key{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12.5px;
+    padding: 15px 18px;
+    border-right: 1px solid var(--hairline);
+    font-weight: 500;
+  }
+  .schema-key.k-lang{ color: var(--c-teradata); background: #EFEDFC; }
+  .schema-key.k-platform{ color: var(--c-snowflake); background: #E7F5FD; }
+  .schema-key.k-tool{ color: var(--c-etl); background: #FDF3E7; }
+  .schema-val{
+    padding: 15px 18px;
+    font-size: 14.5px;
+    color: #333B45;
+  }
+  @media (max-width: 500px){
+    .schema-row{ grid-template-columns: 1fr; }
+    .schema-key{ border-right:none; border-bottom: 1px solid var(--hairline); }
+  }
+
+  /* ---- Certifications ---- */
+  .cert-list{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .cert-list li{
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 15px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 5px;
+    transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+  }
+  .cert-list li:hover{
+    box-shadow: 0 8px 20px rgba(20,24,31,0.06);
+    border-color: #C9D3D6;
+    transform: translateY(-2px);
+  }
+  .cert-tag{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 11px;
+    font-weight: 500;
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .cert-tag.t-msft{ color: var(--c-azure); background: #EAF1FE; }
+  .cert-tag.t-dbx{ color: var(--c-databricks); background: #FDEAEE; }
+
+  /* ---- Education ---- */
+  .edu-title{
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    font-size: 18px;
+    margin: 0 0 4px;
+  }
+  .edu-sub{
+    font-size: 14.5px;
+    color: var(--muted);
+  }
+  .edu-dates{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  footer{
+    padding: 32px 0 60px;
+    padding-left: 40px;
+    border-top: 1px solid var(--hairline);
+    margin-top: -1px;
+  }
+  @media (max-width: 640px){ footer{ padding-left: 0; } }
+  footer p{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  ::selection{ background: var(--accent-soft); }
+
+  /* ---- Inline contact record (used in name dropdown) ---- */
+  .record-fields{
+    display: grid;
+    gap: 1px;
+    background: var(--hairline);
+    border: 1px solid var(--hairline);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .record-field{
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    background: var(--surface);
+    padding: 12px 14px;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .record-key{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .record-val{
+    font-size: 13.5px;
+    color: var(--ink);
+    text-decoration: none;
+    word-break: break-word;
+  }
+  a.record-val:hover{ color: var(--accent-bright); }
+
+  .pipeline-3d-wrap{
+    perspective: 900px;
+    padding: 6px 0 4px;
+  }
+  .pipeline-3d{
+    background: linear-gradient(155deg, var(--surface), #F2F4F7);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 14px 10px;
+    transform: rotateX(10deg) rotateY(-8deg) rotateZ(0.3deg);
+    transform-style: preserve-3d;
+    box-shadow:
+      0 22px 34px -14px rgba(20,24,31,0.28),
+      0 2px 0 rgba(255,255,255,0.6) inset;
+    transition: transform .4s cubic-bezier(.2,.8,.3,1), box-shadow .4s ease;
+  }
+  .pipeline-3d:hover{
+    transform: rotateX(2deg) rotateY(-2deg) rotateZ(0deg) scale(1.015);
+    box-shadow:
+      0 30px 46px -16px rgba(20,24,31,0.32),
+      0 2px 0 rgba(255,255,255,0.6) inset;
+  }
+  @media (max-width: 500px){
+    .pipeline-3d{ transform: none; }
+    .pipeline-3d:hover{ transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .pipeline-3d{ transition: none; }
+  }
+
+  a:focus-visible, button:focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="spine"></div>
+
+  <header class="hero">
+    <button type="button" class="name-trigger" id="nameTrigger" aria-expanded="false" aria-controls="nameBody">
+      <h1>Charan Simha Sekharam
+        <svg class="exp-chevron name-chevron" width="16" height="16" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 3.5L5.5 8L10 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </h1>
+    </button>
+    <p class="eyebrow">Data Engineer Analyst</p>
+    <p class="name-hint">click the name for full contact details</p>
+
+    <div class="exp-collapse" id="nameBody">
+      <div class="exp-collapse-inner">
+        <div class="record-fields" style="margin-bottom: 26px;">
+          <div class="record-field">
+            <span class="record-key">email</span>
+            <a class="record-val" href="mailto:sekharamcharansimha@gmail.com">sekharamcharansimha@gmail.com</a>
+          </div>
+          <div class="record-field">
+            <span class="record-key">phone</span>
+            <a class="record-val" href="tel:+916309796830">+91 6309796830</a>
+          </div>
+          <div class="record-field">
+            <span class="record-key">linkedin</span>
+            <a class="record-val" href="https://www.linkedin.com/in/charan-simha-sekharam-a3a0b4178/" target="_blank" rel="noopener">/in/charan-simha-sekharam</a>
+          </div>
+          <div class="record-field">
+            <span class="record-key">location</span>
+            <span class="record-val">Bengaluru, India</span>
+          </div>
+          <div class="record-field">
+            <span class="record-key">status</span>
+            <span class="record-val">Open to new opportunities</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="role">Cloud migration · ETL modernization · Snowflake &amp; Databricks</p>
+    <p class="summary">
+      Data Engineer Associate with 2+ years of experience delivering enterprise-scale
+      data migration and cloud modernization projects — specializing in moving ETL
+      workloads and databases from on-premises platforms to AWS, including
+      Teradata-to-Snowflake migrations. I enjoy solving complex data engineering
+      problems and building modern platforms that create real business value.
+    </p>
+  </header>
+
+  <div class="expand-all-row">
+    <button type="button" class="expand-all-btn" id="expandAllBtn">
+      <svg class="expand-all-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 1.5V10.5M1.5 6H10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span id="expandAllLabel">Expand all sections</span>
+    </button>
+  </div>
+
+  <section class="block">
+    <span class="node"></span>
+    <button type="button" class="sec-title exp-toggle" id="expToggle" aria-expanded="false" aria-controls="expBody">
+      Experience
+      <svg class="exp-chevron" width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 3.5L5.5 8L10 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <p class="name-hint" style="margin: -14px 0 0;">click to view role &amp; achievements</p>
+    <div class="exp-collapse" id="expBody">
+      <div class="exp-collapse-inner">
+    <div class="job">
+      <div class="job-head">
+        <span class="job-title">Accenture</span>
+        <span class="job-dates">Apr 2024 — Present</span>
+      </div>
+      <div class="job-progression">
+        <div class="job-stage">
+          <span class="job-stage-title">Data Engineer Analyst</span>
+          <span class="job-stage-dates">Jun 2026 — Present</span>
+        </div>
+        <p class="job-stage-desc">Promoted to lead end-to-end delivery of cloud data migration initiatives, partnering with cross-functional engineering teams to translate complex legacy architectures into scalable, cloud-native solutions on AWS and Snowflake.</p>
+        <div class="job-stage">
+          <span class="job-stage-title">Data Engineer Associate</span>
+          <span class="job-stage-dates">Apr 2024 — Jun 2026</span>
+        </div>
+      </div>
+      <ul>
+        <li>Led migration of enterprise ETL workloads from on-premises infrastructure to AWS, redesigning pipelines for scalability and reliability.</li>
+        <li>Executed a Teradata-to-Snowflake database migration, restructuring schemas and validating data integrity across environments.</li>
+        <li>Built and maintained data pipelines using Databricks, SQL, and Ab Initio, supporting downstream analytics and reporting.</li>
+      </ul>
+    </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <span class="node"></span>
+    <button type="button" class="sec-title exp-toggle" id="skillsToggle" aria-expanded="false" aria-controls="skillsBody">
+      Skills
+      <svg class="exp-chevron" width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 3.5L5.5 8L10 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <p class="name-hint" style="margin: -14px 0 0;">click to view the stack</p>
+    <div class="exp-collapse" id="skillsBody">
+      <div class="exp-collapse-inner">
+    <div class="schema">
+      <div class="schema-row">
+        <div class="schema-key k-lang">languages</div>
+        <div class="schema-val">SQL, Python</div>
+      </div>
+      <div class="schema-row">
+        <div class="schema-key k-platform">platforms</div>
+        <div class="schema-val">Snowflake, Databricks, Teradata, AWS, Azure</div>
+      </div>
+      <div class="schema-row">
+        <div class="schema-key k-tool">tooling</div>
+        <div class="schema-val">Ab Initio ETL, Linux, MS Office</div>
+      </div>
+    </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <span class="node"></span>
+    <button type="button" class="sec-title exp-toggle" id="certsToggle" aria-expanded="false" aria-controls="certsBody">
+      Certifications
+      <svg class="exp-chevron" width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 3.5L5.5 8L10 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <p class="name-hint" style="margin: -14px 0 0;">click to view credentials</p>
+    <div class="exp-collapse" id="certsBody">
+      <div class="exp-collapse-inner">
+    <ul class="cert-list">
+      <li><span class="cert-tag t-msft">MSFT</span> Microsoft Azure Fundamentals (AZ-900)</li>
+      <li><span class="cert-tag t-dbx">DBX</span> Databricks Certified Data Engineer Associate</li>
+      <li><span class="cert-tag t-dbx">DBX</span> Databricks Certified Data Engineer Professional</li>
+    </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <span class="node"></span>
+    <button type="button" class="sec-title exp-toggle" id="eduToggle" aria-expanded="false" aria-controls="eduBody">
+      Education
+      <svg class="exp-chevron" width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 3.5L5.5 8L10 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <p class="name-hint" style="margin: -14px 0 0;">click to view degree</p>
+    <div class="exp-collapse" id="eduBody">
+      <div class="exp-collapse-inner">
+    <div class="job" style="padding: 22px 26px;">
+      <p class="edu-title">B.Tech, Mechanical Engineering</p>
+      <p class="edu-sub">Amrita University, Bengaluru</p>
+      <p class="edu-dates">2018 — 2022</p>
+    </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Last updated · 2026</p>
+  </footer>
+</div>
+</body>
+<script>
+  const toggles = [
+    { toggle: document.getElementById('nameTrigger'), body: document.getElementById('nameBody') },
+    { toggle: document.getElementById('expToggle'), body: document.getElementById('expBody') },
+    { toggle: document.getElementById('skillsToggle'), body: document.getElementById('skillsBody') },
+    { toggle: document.getElementById('certsToggle'), body: document.getElementById('certsBody') },
+    { toggle: document.getElementById('eduToggle'), body: document.getElementById('eduBody') }
+  ];
+
+  const expandAllBtn = document.getElementById('expandAllBtn');
+  const expandAllLabel = document.getElementById('expandAllLabel');
+
+  function setSection(item, open){
+    item.body.classList.toggle('open', open);
+    item.toggle.setAttribute('aria-expanded', String(open));
+  }
+
+  function syncExpandAllButton(){
+    const allOpen = toggles.every(item => item.body.classList.contains('open'));
+    expandAllBtn.classList.toggle('all-open', allOpen);
+    expandAllLabel.textContent = allOpen ? 'Collapse all sections' : 'Expand all sections';
+  }
+
+  toggles.forEach(item => {
+    item.toggle.addEventListener('click', () => {
+      const isOpen = item.body.classList.toggle('open');
+      item.toggle.setAttribute('aria-expanded', String(isOpen));
+      syncExpandAllButton();
+    });
+  });
+
+  expandAllBtn.addEventListener('click', () => {
+    const willOpen = !toggles.every(item => item.body.classList.contains('open'));
+    toggles.forEach(item => setSection(item, willOpen));
+    syncExpandAllButton();
+  });
+</script>
+</html>
